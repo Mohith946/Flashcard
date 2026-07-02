@@ -67,11 +67,11 @@ export default function Home() {
 
   useEffect(() => {
     refresh();
-    
+
     // Load streak from localStorage or initialize
     const saved = localStorage.getItem("ai-flashcards-streak");
     const dayOfWeek = (new Date().getDay() + 6) % 7; // 0: M, 1: T ... 6: S
-    
+
     let currentStreak;
     if (saved) {
       try {
@@ -80,7 +80,7 @@ export default function Home() {
         currentStreak = null;
       }
     }
-    
+
     if (!currentStreak || !Array.isArray(currentStreak) || currentStreak.length !== 7) {
       currentStreak = [
         { label: "M", completed: false },
@@ -92,7 +92,7 @@ export default function Home() {
         { label: "S", completed: false }
       ];
     }
-    
+
     // Mark today as completed automatically since they opened the app
     currentStreak[dayOfWeek].completed = true;
     setStreakDays(currentStreak);
@@ -102,7 +102,7 @@ export default function Home() {
     const savedHistory = localStorage.getItem("ai-flashcards-study-history");
     let historyList = [];
     const todayStr = new Date().toISOString().split('T')[0];
-    
+
     if (savedHistory) {
       try {
         historyList = JSON.parse(savedHistory);
@@ -117,7 +117,7 @@ export default function Home() {
       d2.setDate(d2.getDate() - 2);
       const d5 = new Date();
       d5.setDate(d5.getDate() - 5);
-      
+
       historyList = [
         todayStr,
         d1.toISOString().split('T')[0],
@@ -125,7 +125,7 @@ export default function Home() {
         d5.toISOString().split('T')[0]
       ];
     }
-    
+
     if (!historyList.includes(todayStr)) {
       historyList.push(todayStr);
     }
@@ -166,7 +166,7 @@ export default function Home() {
           <span></span>
           <span></span>
         </button>
-        
+
         {/* Desktop Nav Links */}
         <nav className="desktop-nav desktop-only">
           <button className={activeTab === 0 ? "active" : ""} onClick={() => setActiveTab(0)}>Decks</button>
@@ -176,11 +176,27 @@ export default function Home() {
         </nav>
 
         <div className="logo-container">
-          <svg viewBox="0 0 100 100" width="32" height="32" style={{ transform: "scaleX(-1)" }}>
-            <path d="M50 15 C62 15, 75 25, 80 40 C82 45, 85 48, 80 52 C70 58, 60 62, 50 72 C40 82, 30 85, 25 78 C20 70, 25 55, 30 45 C35 35, 40 15, 50 15 Z" fill="var(--accent)" />
-            <path d="M80 40 L92 42 L80 47 Z" fill="#e89e3a" />
-            <circle cx="68" cy="38" r="2.5" fill="#fff" />
-            <circle cx="68" cy="38" r="1.2" fill="#2c2924" />
+          <svg viewBox="0 0 100 100" width="36" height="36" style={{ display: "block" }}>
+            {/* Bulb Glow */}
+            <path d="M50 22 C37 22, 28 32, 28 47 C28 58, 34 65, 39 71 C42 75, 42 78, 43 81 L57 81 C58 78, 58 75, 61 71 C66 65, 72 58, 72 47 C72 32, 63 22, 50 22 Z" fill="#ffd54f" />
+            <path d="M50 25 C40 25, 31 33, 31 47 C31 56, 36 62, 41 68 C44 72, 45 74, 45 77 L55 77 C55 74, 56 72, 59 68 C64 62, 69 56, 69 47 C69 33, 60 25, 50 25 Z" fill="#ffca28" />
+
+            {/* Screw base */}
+            <path d="M43 81 H57 V83 C57 84, 56 85, 55 85 H45 C44 85, 43 84, 43 83 Z" fill="#b0bec5" />
+            <path d="M44 85 H56 V87 C56 88, 55 89, 54 89 H46 C45 89, 44 88, 44 87 Z" fill="#90a4ae" />
+            <path d="M46 89 H54 C55 89, 55 91, 54 92 C53 93, 47 93, 46 92 C45 91, 45 89, 46 89 Z" fill="#78909c" />
+
+            {/* Cap Underneath Support */}
+            <path d="M36 43 L36 48 C36 54, 64 54, 64 48 L64 43 Z" fill="#0d47a1" />
+
+            {/* Mortarboard Diamond Top */}
+            <polygon points="10,34 50,14 90,34 50,54" fill="#0d47a1" />
+            <polygon points="15,34 50,17 85,34 50,51" fill="none" stroke="#00b0ff" strokeWidth="2" />
+
+            {/* Tassel */}
+            <circle cx="50" cy="34" r="2.5" fill="#0a388e" />
+            <path d="M50 34 C58 34, 66 38, 66 46 L66 54" fill="none" stroke="#0a388e" strokeWidth="2" strokeLinecap="round" />
+            <rect x="64" y="54" width="4" height="8" rx="1" fill="#0a388e" />
           </svg>
         </div>
       </header>
@@ -214,7 +230,7 @@ export default function Home() {
                   <div className="daily-card-date">{formattedDate}</div>
                   <button className="sound-button" onClick={handleSpeak} title="Listen">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
                     </svg>
                   </button>
                 </div>
@@ -224,7 +240,7 @@ export default function Home() {
                   <br />
                   <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.25rem", display: "inline-block" }}>— {dailyWord.source}</span>
                 </p>
-                
+
                 {/* Bird Illustration */}
                 <div className="daily-card-illustration">
                   <svg viewBox="0 0 100 100" width="90" height="90">
@@ -244,9 +260,9 @@ export default function Home() {
               {/* Study Streak */}
               <div className="section-header">
                 <h2>Study Streak</h2>
-                <button 
-                  onClick={() => setShowCalendarModal(true)} 
-                  className="delete-btn" 
+                <button
+                  onClick={() => setShowCalendarModal(true)}
+                  className="delete-btn"
                   style={{ padding: "0.25rem", display: "flex", alignItems: "center" }}
                   title="View Study History"
                 >
@@ -299,7 +315,7 @@ export default function Home() {
                     </div>
                     <button className="delete-btn" onClick={(e) => handleDelete(deck.id, e)} title="Delete Deck">
                       <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                       </svg>
                     </button>
                   </div>
@@ -326,7 +342,7 @@ export default function Home() {
             <p className="muted" style={{ lineHeight: "1.6", marginBottom: "1.5rem" }}>
               Our design draws inspiration from warm, minimalist paper aesthetics, ensuring high readability and a calming study environment.
             </p>
-            
+
             <h3>Tech Stack</h3>
             <ul className="muted" style={{ paddingLeft: "1.25rem", margin: "0.75rem 0 2rem", lineHeight: "1.8" }}>
               <li><strong>Frontend:</strong> React, Vite, Vanilla CSS</li>
@@ -336,7 +352,7 @@ export default function Home() {
             </ul>
 
             <footer className="info-footer muted">
-              &copy; 2026 mohith. All rights reserved.
+              &copy; 2026 Mohith. All rights reserved.
             </footer>
           </div>
         )}
@@ -345,12 +361,12 @@ export default function Home() {
         {activeTab === 3 && (
           <div style={{ marginTop: "0.5rem" }}>
             <div className="search-pill">
-              <input 
-                type="text" 
-                placeholder="SEARCH DECKS..." 
+              <input
+                type="text"
+                placeholder="SEARCH DECKS..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus 
+                autoFocus
               />
               <button className="search-pill-icon" onClick={() => setSearchQuery("")}>
                 Clear
@@ -374,7 +390,7 @@ export default function Home() {
                     <div className="deck-right">
                       <button className="delete-btn" onClick={(e) => handleDelete(deck.id, e)}>
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                         </svg>
                       </button>
                     </div>
@@ -388,39 +404,39 @@ export default function Home() {
 
       {/* Bottom Sticky Tab Navigation */}
       <nav className="bottom-nav">
-        <button 
-          className={`nav-item ${activeTab === 0 ? "active" : ""}`} 
+        <button
+          className={`nav-item ${activeTab === 0 ? "active" : ""}`}
           onClick={() => setActiveTab(0)}
           title="Dashboard"
         >
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-            <path d="M3 3h8v8H3zm0 10h8v8H3zM13 3h8v8h-8zm0 10h8v8h-8z"/>
+            <path d="M3 3h8v8H3zm0 10h8v8H3zM13 3h8v8h-8zm0 10h8v8h-8z" />
           </svg>
         </button>
 
-        <button 
-          className={`nav-item ${activeTab === 1 ? "active" : ""}`} 
+        <button
+          className={`nav-item ${activeTab === 1 ? "active" : ""}`}
           onClick={() => setActiveTab(1)}
           title="Generate Deck"
         >
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-            <path d="M2 4h16v2H2zm2 4h16v2H4zm2 4h16v2H6zm2 4h16v2H8zm2 4h16v2H10z"/>
+            <path d="M2 4h16v2H2zm2 4h16v2H4zm2 4h16v2H6zm2 4h16v2H8zm2 4h16v2H10z" />
           </svg>
           <span className="nav-badge">+</span>
         </button>
 
-        <button 
-          className={`nav-item ${activeTab === 2 ? "active" : ""}`} 
+        <button
+          className={`nav-item ${activeTab === 2 ? "active" : ""}`}
           onClick={() => setActiveTab(2)}
           title="About Info"
         >
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
           </svg>
         </button>
 
-        <button 
-          className={`nav-item ${activeTab === 3 ? "active" : ""}`} 
+        <button
+          className={`nav-item ${activeTab === 3 ? "active" : ""}`}
           onClick={() => {
             setActiveTab(3);
             setSearchQuery("");
@@ -428,7 +444,7 @@ export default function Home() {
           title="Search"
         >
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
           </svg>
         </button>
       </nav>
@@ -462,7 +478,7 @@ export default function Home() {
                   &times;
                 </button>
               </div>
-              
+
               <div style={{ textAlign: "center", fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.75rem" }} className="serif-text">
                 {monthName} {currentYear}
               </div>
@@ -478,8 +494,8 @@ export default function Home() {
                   const isStudied = studyHistory.includes(cell.dateStr);
                   const isToday = cell.dateStr === new Date().toISOString().split('T')[0];
                   return (
-                    <div 
-                      key={idx} 
+                    <div
+                      key={idx}
                       className={`calendar-day-cell ${isStudied ? "studied" : ""} ${isToday ? "today" : ""}`}
                     >
                       {cell.day}
@@ -496,9 +512,9 @@ export default function Home() {
                 }).length} active</strong></span>
               </div>
 
-              <button 
-                className="primary-btn" 
-                style={{ width: "100%", marginTop: "1.25rem" }} 
+              <button
+                className="primary-btn"
+                style={{ width: "100%", marginTop: "1.25rem" }}
                 onClick={() => setShowCalendarModal(false)}
               >
                 Close
