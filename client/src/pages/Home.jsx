@@ -50,6 +50,10 @@ export default function Home() {
           </button>
         </div>
       ))}
+
+      <footer style={{ marginTop: "5rem", textAlign: "center", borderTop: "1px solid var(--surface-2)", paddingTop: "1.5rem" }} className="muted">
+        mohith 2026
+      </footer>
     </div>
   );
 }
