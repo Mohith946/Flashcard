@@ -18,11 +18,21 @@ export default function DeckView() {
     <>
       {/* Header Bar */}
       <header className="app-header">
-        <Link to="/" className="delete-btn" style={{ padding: "0.25rem", color: "var(--text)" }} title="Back to Decks">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
-          </svg>
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <Link to="/" className="delete-btn" style={{ padding: "0.25rem", color: "var(--text)", display: "flex", alignItems: "center" }} title="Back to Decks">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+            </svg>
+          </Link>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: "1.1" }}>
+            <span className="serif-text" style={{ fontWeight: 850, fontSize: "1.2rem", letterSpacing: "0.5px", color: "var(--text)" }}>
+              FLASHLEARN
+            </span>
+            <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "1px", color: "var(--text-muted)", textTransform: "uppercase", marginTop: "1px" }}>
+              SINCE 2026
+            </span>
+          </div>
+        </div>
         <div className="logo-container">
           <svg viewBox="0 0 100 100" width="36" height="36" style={{ display: "block" }}>
             {/* Bulb Glow */}

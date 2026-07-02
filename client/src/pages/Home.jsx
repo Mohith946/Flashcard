@@ -161,11 +161,14 @@ export default function Home() {
     <>
       {/* Header */}
       <header className="app-header">
-        <button className="menu-button mobile-only">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: "1.1" }}>
+          <span className="serif-text" style={{ fontWeight: 850, fontSize: "1.2rem", letterSpacing: "0.5px", color: "var(--text)" }}>
+            FLASHLEARN
+          </span>
+          <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "1px", color: "var(--text-muted)", textTransform: "uppercase", marginTop: "1px" }}>
+            SINCE 2026
+          </span>
+        </div>
 
         {/* Desktop Nav Links */}
         <nav className="desktop-nav desktop-only">
@@ -212,15 +215,6 @@ export default function Home() {
               <div className="search-pill-container mobile-only" onClick={() => setActiveTab(3)}>
                 <div className="search-pill">
                   <input type="text" placeholder="ENTER A TOPIC..." readOnly />
-                  <div className="search-divider"></div>
-                  <div style={{ display: "flex", gap: "0.25rem", color: "var(--accent)" }}>
-                    🇬🇧
-                  </div>
-                  <button className="search-pill-icon">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" />
-                    </svg>
-                  </button>
                 </div>
               </div>
 
