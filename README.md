@@ -2,14 +2,14 @@
 
 Paste in a topic or block of text, get an AI-generated deck of flashcards, then study them with a simple spaced-repetition flow.
 
-Stack: **React (Vite)** frontend + **Node/Express** backend + **OpenAI API** for generation.
+Stack: **React (Vite)** frontend + **Node/Express** backend + **Google Gemini API** for generation.
 
 ## Project layout
 
 ```
 ai-flashcard-generator/
 ├── client/     # React frontend
-└── server/     # Express backend + OpenAI integration
+└── server/     # Express backend + Gemini integration
 ```
 
 ## Setup
@@ -20,11 +20,11 @@ ai-flashcard-generator/
 cd server
 npm install
 cp .env.example .env
-# add your OPENAI_API_KEY to .env
+# add your GEMINI_API_KEY to .env
 npm run dev
 ```
 
-Server runs on `http://localhost:5000`.
+Server runs on `http://localhost:5001`.
 
 ### 2. Frontend
 
@@ -40,7 +40,7 @@ Client runs on `http://localhost:5173` and proxies `/api` requests to the server
 
 1. User submits a topic or pasted text + desired card count via `DeckGenerator`.
 2. Frontend calls `POST /api/ai/generate`.
-3. Backend (`aiService.js`) builds a prompt (`prompts/flashcardPrompt.js`) and calls the OpenAI API, requesting strict JSON output.
+3. Backend (`aiService.js`) calls the Google Gemini API with the request details, enforcing a structured JSON response schema.
 4. The response is parsed into `{ front, back }` pairs, saved as a new Deck (currently **in-memory storage** — see `server/src/models`), and returned to the client.
 5. User studies the deck in `FlashCardDeck` / `StudyMode`, flipping cards and marking them known/unknown.
 
