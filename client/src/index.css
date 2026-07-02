@@ -71,19 +71,55 @@ button.secondary {
   background: var(--surface-2);
 }
 
-.flashcard {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 2.5rem 1.5rem;
-  min-height: 200px;
+/* 3D Card Flip styles */
+.flashcard-container {
+  perspective: 1000px;
+  width: 100%;
+  min-height: 220px;
+  cursor: pointer;
+  margin: 1rem 0;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  text-align: center;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.flashcard-container.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  font-size: 1.15rem;
-  cursor: pointer;
-  user-select: none;
+  padding: 2rem 1.5rem;
+  border-radius: var(--radius);
   border: 1px solid #334155;
+  background: var(--surface);
+  user-select: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  font-size: 1.15rem;
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+  background: var(--surface-2);
+  border-color: var(--accent);
 }
 
 .deck-list-item {
