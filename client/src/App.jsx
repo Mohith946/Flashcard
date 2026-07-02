@@ -4,9 +4,11 @@ import DeckView from "./pages/DeckView";
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/decks/:id" element={<DeckView />} />
-    </Routes>
+    <div className="app-container">
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/decks/:id" element={<DeckView />} />
+      </Routes>
+    </div>
   );
 }

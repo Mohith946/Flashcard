@@ -3,9 +3,56 @@ import { Link } from "react-router-dom";
 import DeckGenerator from "../components/flashcards/DeckGenerator";
 import { listDecks, deleteDeck } from "../services/deckService";
 
+const WORD_OF_THE_DAY = [
+  {
+    word: "Idioticon",
+    type: "n",
+    def: "A dictionary of a peculiar dialect, or of the words and phrases peculiar to a particular province or region.",
+    source: "Wiktionary"
+  },
+  {
+    word: "Mellifluous",
+    type: "adj",
+    def: "Sweetly or smoothly flowing; sweet-sounding; pleasant to hear (like honey).",
+    source: "Oxford"
+  },
+  {
+    word: "Ephemeral",
+    type: "adj",
+    def: "Lasting for a very short time; transient; fleeting or passing quickly.",
+    source: "Wiktionary"
+  },
+  {
+    word: "Sycophant",
+    type: "n",
+    def: "A person who acts obsequiously toward someone important in order to gain advantage.",
+    source: "Oxford"
+  }
+];
+
 export default function Home() {
+  const [activeTab, setActiveTab] = useState(0); // 0: Decks, 1: Create, 2: About, 3: Search
   const [decks, setDecks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [streakDays, setStreakDays] = useState([
+    { label: "M", completed: false },
+    { label: "T", completed: false },
+    { label: "W", completed: false },
+    { label: "T", completed: true },
+    { label: "F", completed: true },
+    { label: "S", completed: false },
+    { label: "S", completed: false }
+  ]);
+
+  // Select a word of the day based on the day of the month
+  const dayOfMonth = new Date().getDate();
+  const dailyWord = WORD_OF_THE_DAY[dayOfMonth % WORD_OF_THE_DAY.length];
+  const formattedDate = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric"
+  }).toUpperCase();
 
   async function refresh() {
     setLoading(true);
@@ -18,42 +65,306 @@ export default function Home() {
 
   useEffect(() => {
     refresh();
+    
+    // Set current day of the week as completed in streak for fun
+    const dayOfWeek = (new Date().getDay() + 6) % 7; // 0: M, 1: T ... 6: S
+    setStreakDays((prev) =>
+      prev.map((d, i) => (i === dayOfWeek ? { ...d, completed: true } : d))
+    );
   }, []);
 
-  async function handleDelete(id) {
-    await deleteDeck(id);
-    refresh();
+  async function handleDelete(id, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirm("Are you sure you want to delete this deck?")) {
+      await deleteDeck(id);
+      refresh();
+    }
   }
 
+  function handleSpeak(e) {
+    e.stopPropagation();
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(dailyWord.word);
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  // Filtered decks for Search Tab
+  const filteredDecks = decks.filter((d) =>
+    d.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="container">
-      <h1>AI Flashcard Generator</h1>
+    <>
+      {/* Header */}
+      <header className="app-header">
+        <button className="menu-button mobile-only">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        
+        {/* Desktop Nav Links */}
+        <nav className="desktop-nav desktop-only">
+          <button className={activeTab === 0 ? "active" : ""} onClick={() => setActiveTab(0)}>Decks</button>
+          <button className={activeTab === 1 ? "active" : ""} onClick={() => setActiveTab(1)}>Generate</button>
+          <button className={activeTab === 3 ? "active" : ""} onClick={() => setActiveTab(3)}>Search</button>
+          <button className={activeTab === 2 ? "active" : ""} onClick={() => setActiveTab(2)}>About</button>
+        </nav>
 
-      <DeckGenerator />
-
-      <h2 style={{ marginTop: "2rem" }}>Your decks</h2>
-      {loading && <p className="muted">Loading...</p>}
-      {!loading && decks.length === 0 && (
-        <p className="muted">No decks yet — generate one above.</p>
-      )}
-
-      {decks.map((deck) => (
-        <div className="deck-list-item" key={deck.id}>
-          <div>
-            <Link to={`/decks/${deck.id}`} style={{ color: "inherit", fontWeight: 600 }}>
-              {deck.title}
-            </Link>
-            <p className="muted" style={{ margin: 0 }}>{deck.cardCount} cards</p>
-          </div>
-          <button className="secondary" onClick={() => handleDelete(deck.id)}>
-            Delete
-          </button>
+        <div className="logo-container">
+          <svg viewBox="0 0 100 100" width="32" height="32" style={{ transform: "scaleX(-1)" }}>
+            <path d="M50 15 C62 15, 75 25, 80 40 C82 45, 85 48, 80 52 C70 58, 60 62, 50 72 C40 82, 30 85, 25 78 C20 70, 25 55, 30 45 C35 35, 40 15, 50 15 Z" fill="var(--accent)" />
+            <path d="M80 40 L92 42 L80 47 Z" fill="#e89e3a" />
+            <circle cx="68" cy="38" r="2.5" fill="#fff" />
+            <circle cx="68" cy="38" r="1.2" fill="#2c2924" />
+          </svg>
         </div>
-      ))}
+      </header>
 
-      <footer style={{ marginTop: "5rem", textAlign: "center", borderTop: "1px solid var(--surface-2)", paddingTop: "1.5rem" }} className="muted">
-        &copy; 2026 mohith. All rights reserved.
-      </footer>
-    </div>
+      {/* Main Content Area */}
+      <main className="phone-content">
+        {/* Tab 0: Home / Dashboard */}
+        {activeTab === 0 && (
+          <div className="dashboard-grid">
+            {/* Left Column: Daily Card + Streak */}
+            <div>
+              {/* Search Pill */}
+              <div className="search-pill-container mobile-only" onClick={() => setActiveTab(3)}>
+                <div className="search-pill">
+                  <input type="text" placeholder="ENTER A TOPIC..." readOnly />
+                  <div className="search-divider"></div>
+                  <div style={{ display: "flex", gap: "0.25rem", color: "var(--accent)" }}>
+                    🇬🇧
+                  </div>
+                  <button className="search-pill-icon">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Daily Card */}
+              <div className="daily-card">
+                <div className="daily-card-header">
+                  <div className="daily-card-date">{formattedDate}</div>
+                  <button className="sound-button" onClick={handleSpeak} title="Listen">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                  </button>
+                </div>
+                <h3 className="daily-card-title">{dailyWord.word}</h3>
+                <p className="daily-card-body">
+                  <span style={{ fontStyle: "italic", fontWeight: 600 }}>{dailyWord.type}</span> {dailyWord.def}
+                  <br />
+                  <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.25rem", display: "inline-block" }}>— {dailyWord.source}</span>
+                </p>
+                
+                {/* Bird Illustration */}
+                <div className="daily-card-illustration">
+                  <svg viewBox="0 0 100 100" width="90" height="90">
+                    <path d="M20 70 C30 50, 50 40, 75 40 C70 50, 70 65, 55 75 C40 85, 25 80, 20 70 Z" fill="#787a60" />
+                    <path d="M35 77 C45 83, 60 75, 65 65 C68 58, 68 50, 75 40 C65 42, 50 50, 40 62 C35 68, 32 73, 35 77 Z" fill="#dfbe6b" />
+                    <path d="M50 45 C65 45, 75 58, 70 75 C60 70, 55 60, 50 45 Z" fill="#585a40" />
+                    <path d="M75 40 C80 38, 85 42, 85 45 C80 46, 76 43, 75 40 Z" fill="#2d2f1d" />
+                    <polygon points="85,42 93,45 84,48" fill="#e89e3a" />
+                    <circle cx="78" cy="43" r="1.5" fill="black" />
+                    <circle cx="78.5" cy="42.5" r="0.5" fill="white" />
+                    <path d="M20 70 C10 68, 5 72, 2 76 C5 78, 12 76, 20 70 Z" fill="#585a40" />
+                    <path d="M5 88 C30 86, 70 88, 95 85" stroke="#484a32" strokeWidth="2" strokeLinecap="round" fill="none" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Study Streak */}
+              <div className="section-header">
+                <h2>Study Streak</h2>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--text-muted)">
+                  <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" />
+                </svg>
+              </div>
+              <div className="streak-container" style={{ marginBottom: 0 }}>
+                {streakDays.map((day, i) => (
+                  <div key={i} className="streak-day">
+                    <div className="streak-label">{day.label}</div>
+                    <div className={`streak-circle ${day.completed ? "completed" : ""}`}>
+                      {day.completed ? "✓" : ""}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: Word Decks */}
+            <div>
+              <div className="section-header" style={{ marginTop: 0 }}>
+                <h2>Word Decks</h2>
+              </div>
+              {loading && <p className="muted" style={{ textAlign: "center" }}>Loading...</p>}
+              {!loading && decks.length === 0 && (
+                <p className="muted" style={{ textAlign: "center", padding: "2rem 0" }}>
+                  No decks yet. Use the Create tab to generate one!
+                </p>
+              )}
+
+              {decks.map((deck) => (
+                <div className="deck-card" key={deck.id}>
+                  <div className="deck-info">
+                    <Link to={`/decks/${deck.id}`} className="deck-title">
+                      {deck.title}
+                    </Link>
+                    <span className="muted">{deck.cardCount} cards in this deck</span>
+                  </div>
+                  <div className="deck-right">
+                    <div className="deck-indicator">
+                      <div className="chart-bars">
+                        <div className="chart-bar filled" style={{ height: "8px" }} />
+                        <div className={`chart-bar ${deck.cardCount > 4 ? "filled" : ""}`} style={{ height: "12px" }} />
+                        <div className={`chart-bar ${deck.cardCount > 8 ? "filled" : ""}`} style={{ height: "16px" }} />
+                        <div className={`chart-bar active`} style={{ height: "10px" }} />
+                      </div>
+                      <div className="indicator-text">{String(deck.cardCount * 25).padStart(4, "0")}</div>
+                    </div>
+                    <button className="delete-btn" onClick={(e) => handleDelete(deck.id, e)} title="Delete Deck">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 1: Create a Deck */}
+        {activeTab === 1 && (
+          <div style={{ marginTop: "1rem" }}>
+            <DeckGenerator onGenerated={refresh} />
+          </div>
+        )}
+
+        {/* Tab 2: About / Glossary */}
+        {activeTab === 2 && (
+          <div style={{ padding: "0.5rem 0" }}>
+            <h2 style={{ marginBottom: "1rem" }}>About Flashcard AI</h2>
+            <p className="muted" style={{ lineHeight: "1.6", marginBottom: "1rem" }}>
+              This application is a premium AI-powered flashcard builder that leverages the <strong>Google Gemini API</strong> to automatically convert any study materials, concepts, or web documents into active-recall study decks.
+            </p>
+            <p className="muted" style={{ lineHeight: "1.6", marginBottom: "1.5rem" }}>
+              Our design draws inspiration from warm, minimalist paper aesthetics, ensuring high readability and a calming study environment.
+            </p>
+            
+            <h3>Tech Stack</h3>
+            <ul className="muted" style={{ paddingLeft: "1.25rem", margin: "0.75rem 0 2rem", lineHeight: "1.8" }}>
+              <li><strong>Frontend:</strong> React, Vite, Vanilla CSS</li>
+              <li><strong>Backend:</strong> Node.js, Express</li>
+              <li><strong>AI Service:</strong> Google Gemini SDK (gemini-2.5-flash)</li>
+              <li><strong>Styling:</strong> Curated Warm Paper Palette & Lora Typography</li>
+            </ul>
+
+            <footer className="info-footer muted">
+              &copy; 2026 mohith. All rights reserved.
+            </footer>
+          </div>
+        )}
+
+        {/* Tab 3: Search Tab */}
+        {activeTab === 3 && (
+          <div style={{ marginTop: "0.5rem" }}>
+            <div className="search-pill">
+              <input 
+                type="text" 
+                placeholder="SEARCH DECKS..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus 
+              />
+              <button className="search-pill-icon" onClick={() => setSearchQuery("")}>
+                Clear
+              </button>
+            </div>
+
+            <div style={{ marginTop: "1.5rem" }}>
+              {filteredDecks.length === 0 ? (
+                <p className="muted" style={{ textAlign: "center", padding: "2rem 0" }}>
+                  No matching decks found.
+                </p>
+              ) : (
+                filteredDecks.map((deck) => (
+                  <div className="deck-card" key={deck.id}>
+                    <div className="deck-info">
+                      <Link to={`/decks/${deck.id}`} className="deck-title">
+                        {deck.title}
+                      </Link>
+                      <span className="muted">{deck.cardCount} cards</span>
+                    </div>
+                    <div className="deck-right">
+                      <button className="delete-btn" onClick={(e) => handleDelete(deck.id, e)}>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Bottom Sticky Tab Navigation */}
+      <nav className="bottom-nav">
+        <button 
+          className={`nav-item ${activeTab === 0 ? "active" : ""}`} 
+          onClick={() => setActiveTab(0)}
+          title="Dashboard"
+        >
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path d="M3 3h8v8H3zm0 10h8v8H3zM13 3h8v8h-8zm0 10h8v8h-8z"/>
+          </svg>
+        </button>
+
+        <button 
+          className={`nav-item ${activeTab === 1 ? "active" : ""}`} 
+          onClick={() => setActiveTab(1)}
+          title="Generate Deck"
+        >
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path d="M2 4h16v2H2zm2 4h16v2H4zm2 4h16v2H6zm2 4h16v2H8zm2 4h16v2H10z"/>
+          </svg>
+          <span className="nav-badge">+</span>
+        </button>
+
+        <button 
+          className={`nav-item ${activeTab === 2 ? "active" : ""}`} 
+          onClick={() => setActiveTab(2)}
+          title="About Info"
+        >
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+          </svg>
+        </button>
+
+        <button 
+          className={`nav-item ${activeTab === 3 ? "active" : ""}`} 
+          onClick={() => {
+            setActiveTab(3);
+            setSearchQuery("");
+          }}
+          title="Search"
+        >
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+        </button>
+      </nav>
+    </>
   );
 }

@@ -38,15 +38,17 @@ export default function FlashCardDeck({ deck }) {
 
       <FlashCard key={current.id} card={current} />
 
-      <div style={{ display: "flex", gap: "0.6rem", marginTop: "1rem", justifyContent: "center" }}>
-        <button className="secondary" onClick={goPrev} disabled={index === 0}>
+      <div style={{ display: "flex", gap: "0.6rem", marginTop: "1.5rem", justifyContent: "center", flexWrap: "wrap" }}>
+        <button className="secondary-btn" onClick={goPrev} disabled={index === 0}>
           ← Prev
         </button>
-        <button className="secondary" onClick={() => handleMark(false)}>
+        <button className="secondary-btn" style={{ flex: 1 }} onClick={() => handleMark(false)}>
           Still learning
         </button>
-        <button onClick={() => handleMark(true)}>Got it ✓</button>
-        <button className="secondary" onClick={goNext} disabled={index === cards.length - 1}>
+        <button className="primary-btn" style={{ flex: 1 }} onClick={() => handleMark(true)}>
+          Got it ✓
+        </button>
+        <button className="secondary-btn" onClick={goNext} disabled={index === cards.length - 1}>
           Next →
         </button>
       </div>
