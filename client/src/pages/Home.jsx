@@ -35,12 +35,14 @@ export default function Home() {
   const [decks, setDecks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [studyHistory, setStudyHistory] = useState([]);
   const [streakDays, setStreakDays] = useState([
     { label: "M", completed: false },
     { label: "T", completed: false },
     { label: "W", completed: false },
-    { label: "T", completed: true },
-    { label: "F", completed: true },
+    { label: "T", completed: false },
+    { label: "F", completed: false },
     { label: "S", completed: false },
     { label: "S", completed: false }
   ]);
@@ -66,11 +68,69 @@ export default function Home() {
   useEffect(() => {
     refresh();
     
-    // Set current day of the week as completed in streak for fun
+    // Load streak from localStorage or initialize
+    const saved = localStorage.getItem("ai-flashcards-streak");
     const dayOfWeek = (new Date().getDay() + 6) % 7; // 0: M, 1: T ... 6: S
-    setStreakDays((prev) =>
-      prev.map((d, i) => (i === dayOfWeek ? { ...d, completed: true } : d))
-    );
+    
+    let currentStreak;
+    if (saved) {
+      try {
+        currentStreak = JSON.parse(saved);
+      } catch (e) {
+        currentStreak = null;
+      }
+    }
+    
+    if (!currentStreak || !Array.isArray(currentStreak) || currentStreak.length !== 7) {
+      currentStreak = [
+        { label: "M", completed: false },
+        { label: "T", completed: false },
+        { label: "W", completed: false },
+        { label: "T", completed: true }, // default dummy active days
+        { label: "F", completed: true },
+        { label: "S", completed: false },
+        { label: "S", completed: false }
+      ];
+    }
+    
+    // Mark today as completed automatically since they opened the app
+    currentStreak[dayOfWeek].completed = true;
+    setStreakDays(currentStreak);
+    localStorage.setItem("ai-flashcards-streak", JSON.stringify(currentStreak));
+
+    // Load and save study history
+    const savedHistory = localStorage.getItem("ai-flashcards-study-history");
+    let historyList = [];
+    const todayStr = new Date().toISOString().split('T')[0];
+    
+    if (savedHistory) {
+      try {
+        historyList = JSON.parse(savedHistory);
+      } catch (e) {
+        historyList = [];
+      }
+    } else {
+      // First load: pre-populate some dates for demo
+      const d1 = new Date();
+      d1.setDate(d1.getDate() - 1);
+      const d2 = new Date();
+      d2.setDate(d2.getDate() - 2);
+      const d5 = new Date();
+      d5.setDate(d5.getDate() - 5);
+      
+      historyList = [
+        todayStr,
+        d1.toISOString().split('T')[0],
+        d2.toISOString().split('T')[0],
+        d5.toISOString().split('T')[0]
+      ];
+    }
+    
+    if (!historyList.includes(todayStr)) {
+      historyList.push(todayStr);
+    }
+    setStudyHistory(historyList);
+    localStorage.setItem("ai-flashcards-study-history", JSON.stringify(historyList));
   }, []);
 
   async function handleDelete(id, e) {
@@ -184,9 +244,16 @@ export default function Home() {
               {/* Study Streak */}
               <div className="section-header">
                 <h2>Study Streak</h2>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--text-muted)">
-                  <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" />
-                </svg>
+                <button 
+                  onClick={() => setShowCalendarModal(true)} 
+                  className="delete-btn" 
+                  style={{ padding: "0.25rem", display: "flex", alignItems: "center" }}
+                  title="View Study History"
+                >
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" />
+                  </svg>
+                </button>
               </div>
               <div className="streak-container" style={{ marginBottom: 0 }}>
                 {streakDays.map((day, i) => (
@@ -365,6 +432,81 @@ export default function Home() {
           </svg>
         </button>
       </nav>
+
+      {/* Calendar History Modal */}
+      {showCalendarModal && (() => {
+        const todayDate = new Date();
+        const currentYear = todayDate.getFullYear();
+        const currentMonth = todayDate.getMonth();
+        const firstDayOfWeek = new Date(currentYear, currentMonth, 1).getDay(); // 0: Sun, 1: Mon...
+        const totalDaysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const monthName = todayDate.toLocaleString("default", { month: "long" });
+
+        const calendarDays = [];
+        // Add empty slots for days before the 1st
+        for (let i = 0; i < firstDayOfWeek; i++) {
+          calendarDays.push({ day: null, dateStr: null });
+        }
+        // Add actual days
+        for (let d = 1; d <= totalDaysInMonth; d++) {
+          const dStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+          calendarDays.push({ day: d, dateStr: dStr });
+        }
+
+        return (
+          <div className="modal-overlay" onClick={() => setShowCalendarModal(false)}>
+            <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <h3 style={{ fontSize: "1.2rem" }}>Study History</h3>
+                <button className="delete-btn" onClick={() => setShowCalendarModal(false)} style={{ fontSize: "1.25rem", lineHeight: 1 }}>
+                  &times;
+                </button>
+              </div>
+              
+              <div style={{ textAlign: "center", fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.75rem" }} className="serif-text">
+                {monthName} {currentYear}
+              </div>
+
+              <div className="calendar-grid">
+                {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+                  <div key={i} className="calendar-header-day">{d}</div>
+                ))}
+                {calendarDays.map((cell, idx) => {
+                  if (!cell.day) {
+                    return <div key={idx} className="calendar-day-cell empty" />;
+                  }
+                  const isStudied = studyHistory.includes(cell.dateStr);
+                  const isToday = cell.dateStr === new Date().toISOString().split('T')[0];
+                  return (
+                    <div 
+                      key={idx} 
+                      className={`calendar-day-cell ${isStudied ? "studied" : ""} ${isToday ? "today" : ""}`}
+                    >
+                      {cell.day}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }} className="muted">
+                <span>Total studied: <strong>{studyHistory.length} days</strong></span>
+                <span>This month: <strong>{studyHistory.filter(d => {
+                  const day = new Date(d);
+                  return day.getMonth() === currentMonth;
+                }).length} active</strong></span>
+              </div>
+
+              <button 
+                className="primary-btn" 
+                style={{ width: "100%", marginTop: "1.25rem" }} 
+                onClick={() => setShowCalendarModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        );
+      })()}
     </>
   );
 }
