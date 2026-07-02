@@ -1,0 +1,102 @@
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-2: #334155;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --radius: 12px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.card-panel {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+textarea, input[type="text"], input[type="number"] {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid #475569;
+  border-radius: 8px;
+  color: var(--text);
+  padding: 0.65rem 0.8rem;
+  font-size: 0.95rem;
+}
+
+textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+button:hover {
+  background: var(--accent-hover);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: var(--surface-2);
+}
+
+.flashcard {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 2.5rem 1.5rem;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.15rem;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid #334155;
+}
+
+.deck-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  background: var(--surface);
+  border-radius: 10px;
+  margin-bottom: 0.6rem;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
