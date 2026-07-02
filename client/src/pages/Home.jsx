@@ -52,7 +52,7 @@ export default function Home() {
       ))}
 
       <footer style={{ marginTop: "5rem", textAlign: "center", borderTop: "1px solid var(--surface-2)", paddingTop: "1.5rem" }} className="muted">
-        mohith 2026
+        &copy; 2026 mohith. All rights reserved.
       </footer>
     </div>
   );
